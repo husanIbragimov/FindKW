@@ -21,6 +21,8 @@ def load_json():
 
 @app.get("/search")
 def search(keyword: str):
+    if not keyword:
+        return JSONResponse(content=[], status_code=400)
     keyword_lower = keyword.lower()
 
     results = [
