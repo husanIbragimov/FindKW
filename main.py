@@ -12,7 +12,6 @@ def load_json():
     with open("lugat_with_keywords.json", "rb") as f:
         raw_data = orjson.loads(f.read())
 
-    # Add lowercase keywords for search
     for item in raw_data:
         item["search_keywords"] = [kw.lower() for kw in item["keywords"]]
 
@@ -27,20 +26,23 @@ def search(
 ):
     keyword_lower = keyword.lower() if keyword else None
 
+    # Filter data if keyword is provided
     if keyword_lower:
-        results = [
+        filtered = [
             item for item in data
             if any(keyword_lower in kw for kw in item["search_keywords"])
         ]
-        return JSONResponse(content=results)
     else:
-        # Paginate the full data
-        start = (page - 1) * limit
-        end = start + limit
-        paginated_data = data[start:end]
-        return JSONResponse(content={
-            "page": page,
-            "limit": limit,
-            "total": len(data),
-            "data": paginated_data
-        })
+        filtered = data
+
+    total = len(filtered)
+    start = (page - 1) * limit
+    end = start + limit
+    paginated_data = filtered[start:end]
+
+    return JSONResponse(content={
+        "page": page,
+        "limit": limit,
+        "total": total,
+        "data": paginated_data
+    })
